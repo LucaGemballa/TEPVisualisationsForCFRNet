@@ -1,0 +1,74 @@
+Training with hyperparameters: alpha=1, lambda=0.0001
+Training data: data/masterstudytrain.npz
+Test data:     data/masterstudytest.npz
+Loaded data with shape [29475,63]
+Defining graph...
+
+Training on experiment 1/2...
+0	Obj: 8540.471,	F: 92.703,	Cf: nan,	Imb: 0.18,	Val: 92.761,	ValImb: 0.17,	ValObj: 8529.44
+100	Obj: 1088.348,	F: 32.166,	Cf: nan,	Imb: 0.025,	Val: 32.089,	ValImb: 0.024,	ValObj: 1071.49
+200	Obj: 1073.610,	F: 31.819,	Cf: nan,	Imb: 0.11,	Val: 31.746,	ValImb: 0.1,	ValObj: 1058.38
+300	Obj: 1064.709,	F: 31.591,	Cf: nan,	Imb: 0.17,	Val: 31.373,	ValImb: 0.16,	ValObj: 1035.03
+400	Obj: 1049.194,	F: 31.372,	Cf: nan,	Imb: 0.17,	Val: 31.143,	ValImb: 0.16,	ValObj: 1018.92
+500	Obj: 1039.011,	F: 31.247,	Cf: nan,	Imb: 0.18,	Val: 31.094,	ValImb: 0.17,	ValObj: 1017.17
+600	Obj: 1061.179,	F: 31.432,	Cf: nan,	Imb: 0.14,	Val: 31.183,	ValImb: 0.14,	ValObj: 1027.34
+700	Obj: 1061.878,	F: 31.409,	Cf: nan,	Imb: 0.18,	Val: 31.168,	ValImb: 0.17,	ValObj: 1030.88
+800	Obj: 1089.842,	F: 31.725,	Cf: nan,	Imb: 0.17,	Val: 31.646,	ValImb: 0.17,	ValObj: 1075.34
+900	Obj: 1025.565,	F: 31.035,	Cf: nan,	Imb: 0.16,	Val: 30.882,	ValImb: 0.15,	ValObj: 1003.91
+1000	Obj: 1035.724,	F: 31.304,	Cf: nan,	Imb: 0.12,	Val: 31.170,	ValImb: 0.12,	ValObj: 1014.64
+1100	Obj: 1017.878,	F: 30.981,	Cf: nan,	Imb: 0.15,	Val: 30.782,	ValImb: 0.15,	ValObj: 990.81
+1200	Obj: 1020.563,	F: 30.981,	Cf: nan,	Imb: 0.16,	Val: 30.764,	ValImb: 0.16,	ValObj: 990.37
+1300	Obj: 1013.772,	F: 30.909,	Cf: nan,	Imb: 0.16,	Val: 30.727,	ValImb: 0.16,	ValObj: 989.30
+1400	Obj: 1022.602,	F: 31.085,	Cf: nan,	Imb: 0.098,	Val: 30.893,	ValImb: 0.094,	ValObj: 995.30
+1500	Obj: 1021.699,	F: 31.085,	Cf: nan,	Imb: 0.16,	Val: 30.950,	ValImb: 0.15,	ValObj: 1000.59
+1600	Obj: 1009.464,	F: 30.850,	Cf: nan,	Imb: 0.17,	Val: 30.666,	ValImb: 0.16,	ValObj: 985.11
+1700	Obj: 1018.443,	F: 31.017,	Cf: nan,	Imb: 0.14,	Val: 30.863,	ValImb: 0.14,	ValObj: 996.19
+1800	Obj: 1010.098,	F: 30.863,	Cf: nan,	Imb: 0.13,	Val: 30.661,	ValImb: 0.13,	ValObj: 982.37
+1900	Obj: 1009.823,	F: 30.832,	Cf: nan,	Imb: 0.15,	Val: 30.612,	ValImb: 0.14,	ValObj: 979.75
+2000	Obj: 1016.684,	F: 30.978,	Cf: nan,	Imb: 0.12,	Val: 30.756,	ValImb: 0.12,	ValObj: 988.02
+2100	Obj: 1006.409,	F: 30.828,	Cf: nan,	Imb: 0.14,	Val: 30.638,	ValImb: 0.14,	ValObj: 977.13
+2200	Obj: 1038.317,	F: 31.438,	Cf: nan,	Imb: 0.17,	Val: 31.331,	ValImb: 0.16,	ValObj: 1017.00
+2300	Obj: 1010.213,	F: 30.804,	Cf: nan,	Imb: 0.18,	Val: 30.628,	ValImb: 0.18,	ValObj: 987.05
+2400	Obj: 1014.473,	F: 31.012,	Cf: nan,	Imb: 0.16,	Val: 30.948,	ValImb: 0.15,	ValObj: 996.37
+2500	Obj: 1000.695,	F: 30.720,	Cf: nan,	Imb: 0.16,	Val: 30.504,	ValImb: 0.16,	ValObj: 974.48
+2600	Obj: 1017.975,	F: 30.955,	Cf: nan,	Imb: 0.14,	Val: 30.736,	ValImb: 0.14,	ValObj: 990.24
+2700	Obj: 1001.721,	F: 30.736,	Cf: nan,	Imb: 0.18,	Val: 30.570,	ValImb: 0.17,	ValObj: 979.45
+2800	Obj: 997.888,	F: 30.709,	Cf: nan,	Imb: 0.17,	Val: 30.550,	ValImb: 0.16,	ValObj: 975.52
+2900	Obj: 1006.518,	F: 30.866,	Cf: nan,	Imb: 0.15,	Val: 30.733,	ValImb: 0.14,	ValObj: 984.77
+2999	Obj: 1008.439,	F: 30.886,	Cf: nan,	Imb: 0.17,	Val: 30.716,	ValImb: 0.16,	ValObj: 984.90
+Saving result to results/example_ihdp/results_20241102_142559-044589/...
+
+Training on experiment 2/2...
+0	Obj: 8530.244,	F: 92.643,	Cf: nan,	Imb: 0.073,	Val: 92.901,	ValImb: 0.07,	ValObj: 8591.28
+100	Obj: 1080.944,	F: 31.989,	Cf: nan,	Imb: 0.034,	Val: 32.246,	ValImb: 0.033,	ValObj: 1116.27
+200	Obj: 1044.325,	F: 31.535,	Cf: nan,	Imb: 0.21,	Val: 31.706,	ValImb: 0.2,	ValObj: 1072.33
+300	Obj: 1046.072,	F: 31.576,	Cf: nan,	Imb: 0.24,	Val: 31.612,	ValImb: 0.23,	ValObj: 1066.63
+400	Obj: 1071.031,	F: 31.816,	Cf: nan,	Imb: 0.17,	Val: 31.983,	ValImb: 0.17,	ValObj: 1100.30
+500	Obj: 1017.369,	F: 31.130,	Cf: nan,	Imb: 0.14,	Val: 31.342,	ValImb: 0.14,	ValObj: 1047.05
+600	Obj: 1023.430,	F: 31.103,	Cf: nan,	Imb: 0.16,	Val: 31.309,	ValImb: 0.16,	ValObj: 1051.08
+700	Obj: 1019.635,	F: 31.094,	Cf: nan,	Imb: 0.14,	Val: 31.318,	ValImb: 0.14,	ValObj: 1050.93
+800	Obj: 1006.082,	F: 30.868,	Cf: nan,	Imb: 0.15,	Val: 31.033,	ValImb: 0.15,	ValObj: 1031.44
+900	Obj: 1011.630,	F: 30.957,	Cf: nan,	Imb: 0.18,	Val: 31.124,	ValImb: 0.18,	ValObj: 1037.17
+1000	Obj: 1008.408,	F: 30.964,	Cf: nan,	Imb: 0.11,	Val: 31.243,	ValImb: 0.11,	ValObj: 1040.84
+1100	Obj: 1012.513,	F: 31.026,	Cf: nan,	Imb: 0.095,	Val: 31.344,	ValImb: 0.093,	ValObj: 1047.69
+1200	Obj: 1010.792,	F: 30.885,	Cf: nan,	Imb: 0.17,	Val: 31.099,	ValImb: 0.17,	ValObj: 1038.37
+1300	Obj: 1007.940,	F: 30.942,	Cf: nan,	Imb: 0.13,	Val: 31.219,	ValImb: 0.13,	ValObj: 1037.90
+1400	Obj: 1010.044,	F: 30.881,	Cf: nan,	Imb: 0.2,	Val: 30.991,	ValImb: 0.2,	ValObj: 1029.96
+1500	Obj: 1015.601,	F: 31.021,	Cf: nan,	Imb: 0.11,	Val: 31.316,	ValImb: 0.1,	ValObj: 1047.91
+1600	Obj: 1004.799,	F: 30.968,	Cf: nan,	Imb: 0.11,	Val: 31.253,	ValImb: 0.11,	ValObj: 1036.39
+1700	Obj: 996.019,	F: 30.751,	Cf: nan,	Imb: 0.13,	Val: 31.009,	ValImb: 0.13,	ValObj: 1025.49
+1800	Obj: 997.739,	F: 30.816,	Cf: nan,	Imb: 0.15,	Val: 31.075,	ValImb: 0.15,	ValObj: 1025.91
+1900	Obj: 1020.253,	F: 31.276,	Cf: nan,	Imb: 0.11,	Val: 31.559,	ValImb: 0.11,	ValObj: 1052.19
+2000	Obj: 988.458,	F: 30.640,	Cf: nan,	Imb: 0.11,	Val: 30.895,	ValImb: 0.12,	ValObj: 1017.64
+2100	Obj: 1016.741,	F: 31.072,	Cf: nan,	Imb: 0.21,	Val: 31.155,	ValImb: 0.22,	ValObj: 1032.91
+2200	Obj: 1003.717,	F: 30.864,	Cf: nan,	Imb: 0.11,	Val: 31.170,	ValImb: 0.11,	ValObj: 1034.83
+2300	Obj: 1000.814,	F: 30.768,	Cf: nan,	Imb: 0.14,	Val: 31.011,	ValImb: 0.14,	ValObj: 1027.97
+2400	Obj: 995.375,	F: 30.659,	Cf: nan,	Imb: 0.16,	Val: 30.882,	ValImb: 0.16,	ValObj: 1021.28
+2500	Obj: 995.230,	F: 30.662,	Cf: nan,	Imb: 0.18,	Val: 30.818,	ValImb: 0.18,	ValObj: 1016.37
+2600	Obj: 995.994,	F: 30.668,	Cf: nan,	Imb: 0.16,	Val: 30.868,	ValImb: 0.16,	ValObj: 1021.65
+2700	Obj: 993.470,	F: 30.773,	Cf: nan,	Imb: 0.13,	Val: 30.986,	ValImb: 0.13,	ValObj: 1018.08
+2800	Obj: 990.904,	F: 30.641,	Cf: nan,	Imb: 0.13,	Val: 30.911,	ValImb: 0.13,	ValObj: 1019.73
+2900	Obj: 991.809,	F: 30.739,	Cf: nan,	Imb: 0.12,	Val: 31.010,	ValImb: 0.12,	ValObj: 1020.51
+2999	Obj: 986.858,	F: 30.667,	Cf: nan,	Imb: 0.15,	Val: 30.878,	ValImb: 0.16,	ValObj: 1010.15
+Saving result to results/example_ihdp/results_20241102_142559-044589/...
+
