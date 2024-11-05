@@ -62,7 +62,7 @@ def evaluate(config_file, overwrite=False, filters=None):
                                 data_path_test=data_test,
                                 binary=binary)
         # Save evaluation
-        print("ITE Prediction Shape: ", np.shape(eval_results['test']['iteff_pred'][:,0,:,:]))
+        print("ITE Prediction Shape: ", np.shape(eval_results['test']['iteff_pred']))
         np.save('results/example_ihdp/res.npy', eval_results)
         pickle.dump(eval_results, open(eval_path, "wb"))
     else:

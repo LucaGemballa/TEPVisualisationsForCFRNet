@@ -89,7 +89,6 @@ after this install the packages via pip
 For this repository two environments are needed. To use the cfr_net to make predictions the following packages are needed:
     Python 3.6.2
     Numpy 1.19.4
-    Matplotlib 3.3.4
     Scipy 1.5.4
     Tensorflow 1.4.0
     tqdm 4.64.1

@@ -295,8 +295,6 @@ def evaluate_result(result, data, validation=False,
         if not multiple_exps and not validation:
             nn_t, nn_c = cf_nn(data['x'][:,:,0], data['t'][:,0])
 
-
-
         #Loop over repeated experiments
         for i_rep in range(n_rep):
 
