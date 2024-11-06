@@ -157,7 +157,7 @@ def plot_all_profiles(results, patient_nrs=[0], feature1=0, feature2=1):
     p3_plot(teps_for_feat1vals, stds_for_feat1vals, uniq_feat1_vals)
     p4_plot(avg_ite_per_person[0], treatment_outcome_list, control_outcome_list, feature1, feature2, results['test']['features'])
     p6_plot(results['test']['iteff_pred'], results['test']['features'], feature1, feature2)
-    p7_plot(avg_ite_per_person[0], treatment_outcome_list, control_outcome_list, results['test']['features'], feature1, feature2)
+    p7_plot(treatment_outcome_list, control_outcome_list, results['test']['features'], feature1, feature2)
     p8_plot(avg_ite_per_person[0], results['test']['features'], treatment_outcome_list, control_outcome_list, feature1)
     p10_plot(avg_ite_per_person[0], treatment_outcome_list, control_outcome_list)
     p12_plot(avg_ite_per_person)
@@ -175,7 +175,7 @@ def plot_all_profiles(results, patient_nrs=[0], feature1=0, feature2=1):
         p5_plot(treatment_outcome_list, control_outcome_list, feat1_vals, uniq_feat1_vals, pat_nr)
         p9_plot(avg_ite_per_person[0], std_ite_per_person[0], pat_nr)
         p11_plot(uniq_feat1_vals, uniq_feat2_vals, feat1_vals, feat2_vals, treatment_outcome_list, control_outcome_list, pat_nr, nr_patients)
-        p13_plot(avg_ite_per_person[0], treatment_outcome_list, control_outcome_list,results['test']['features'], results['test']['iteff_pred'], feature1, feature2, pat_nr)
+        #p13_plot(avg_ite_per_person[0], treatment_outcome_list, control_outcome_list,results['test']['features'], results['test']['iteff_pred'], feature1, feature2, pat_nr)
         p15_plot(avg_ite_per_person[0], teps_for_feat1vals, feat1val_labs, pat_nr)
         p18_plot(avg_ite_per_person[0], treatment_outcome_list, control_outcome_list, pat_nr)
 
@@ -188,6 +188,7 @@ def p1_plot(to_list, co_list):
     plt.ylabel("Outcome Prediction")
     plt.savefig('p1.png', dpi=1000)
     plt.clf()
+    plt.close()
 
 
 # p2_plot sorts ites, treatment and control outcomes by the feature values of their respective patients and 
@@ -196,11 +197,13 @@ def p2_plot(teps_for_featvals, all_featvals, to_list, co_list, feat_x):
     prc_to_sample = 0.06
     #teps_for_featvals = [[np.mean(iteff_pred_results[0,0,8:15,patient]) for patient in np.where(feat_x == featval)[0]] for featval in all_featvals]
 
-    # sample part of the incices for each unique feature expression because otherwise the plot gets too crowded
-    featval_sizes = [len(teps_for_featvals[x]) for x in range(len(teps_for_featvals))]
-    sample_indices = [list(range(featval_sizes[x])) for x in range(len(all_featvals))] 
-    [np.random.shuffle(sample_indices[x]) for x in range(len(all_featvals))]
-    sampled_indices = [sample_indices[x][:math.floor(featval_sizes[x]*prc_to_sample)] for x in range(len(all_featvals))]
+    featval_range = range(len(teps_for_featvals))
+
+    # sample part of the indices for each unique feature expression because otherwise the plot gets too crowded
+    featval_sizes = [len(teps_for_featvals[x]) for x in featval_range]
+    sample_indices = [list(range(featval_sizes[x])) for x in featval_range] 
+    [np.random.shuffle(sample_indices[x]) for x in featval_range]
+    sampled_indices = [sample_indices[x][:math.floor(featval_sizes[x]*prc_to_sample)] for x in featval_range]
 
     
     tos_for_featvals = [[to_list[patient] for patient in np.where(feat_x == featval)[0]] for featval in all_featvals]
@@ -208,11 +211,11 @@ def p2_plot(teps_for_featvals, all_featvals, to_list, co_list, feat_x):
     sampled_tos = []
     samples_cos = []
 
-    featval_samples = [random.sample(teps_for_featvals[x],math.floor(featval_sizes[x]*prc_to_sample)) for x in range(len(all_featvals))]
+    featval_samples = [random.sample(teps_for_featvals[x],math.floor(featval_sizes[x]*prc_to_sample)) for x in featval_range]
 
-    tos_samples = [np.array(tos_for_featvals[x])[sampled_indices[x]] for x in range(len(all_featvals))]
-    cos_samples = [np.array(cos_for_featvals[x])[sampled_indices[x]] for x in range(len(all_featvals))]
-    ite_samples = [tos_samples[x]-cos_samples[x] for x in range(len(all_featvals))]
+    tos_samples = [np.array(tos_for_featvals[x])[sampled_indices[x]] for x in featval_range]
+    cos_samples = [np.array(cos_for_featvals[x])[sampled_indices[x]] for x in featval_range]
+    ite_samples = [tos_samples[x]-cos_samples[x] for x in featval_range]
 
     nr_buckets = len(all_featvals) # nr_buckets is the number of unique feature expressions
     fig = plt.figure(figsize=(8,5))
@@ -231,15 +234,19 @@ def p2_plot(teps_for_featvals, all_featvals, to_list, co_list, feat_x):
 
     # now for each unique feature expression sort the respective values and plot them as colored bars
     for ax_nr, ax_name in zip(range(nr_buckets), feat_names):
-        # use ites and control outcomes here because the bars will be ites stacked on control outcomes, sorted by ite
+        # create a list of tuples to sort both lists by the size of the ite value
         to_sort = listOfTuples2(ite_samples[ax_nr],cos_samples[ax_nr])
+
         if(len(to_sort) < 50):
             sample_list = to_sort
         else:
             sample_list = random.sample(to_sort, 50)
+
         sorted_vals = sorted(sample_list, key=lambda tup: tup[0])
         sorted_ites = [x[0] for x in sorted_vals]
         sorted_cos = [x[1] for x in sorted_vals]
+
+        # plot the ites and cos stacked on top of each other, depending on the ite being positive or negative
         for x in range(len(sorted_ites)-1):
             if(sorted_ites[x] > 0):
                 axs[ax_nr].bar(x,sorted_cos[x],color='blue')
@@ -261,21 +268,21 @@ def p2_plot(teps_for_featvals, all_featvals, to_list, co_list, feat_x):
 
     axs[0].set_ylabel('Outcome Prediction')
     fig.supxlabel('Age Group')
-
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.savefig('p2.png', bbox_inches='tight', dpi=1000)
     plt.clf()
+    plt.close()
 
 
+# p3_plot samples part of the ite values for each expression of the target feature 
 def p3_plot(teps_for_featvals, stds_for_featvals, all_featvals):
-    featval_sizes = [len(teps_for_featvals[x]) for x in range(len(teps_for_featvals))]
+    #featval_sizes = [len(teps_for_featvals[x]) for x in range(len(teps_for_featvals))]
+
+    #ordered_featvals = [np.sort([teps_for_featvals[x]]) for x in range(len(teps_for_featvals))]
+    # o contains the same values as ordered featvals, it just removes one layer of unnecessary array structure
+    #o = [x for xs in ordered_featvals for x in xs]
 
     nr_buckets = len(all_featvals)
-
-    ordered_featvals = [np.sort([teps_for_featvals[x]]) for x in range(len(teps_for_featvals))]
-    # o contains the same values as ordered featvals, it just removes one layer of unnecessary array structure
-    o = [x for xs in ordered_featvals for x in xs]
-
     fig = plt.figure(figsize=(8,5))
     gs = fig.add_gridspec(1, nr_buckets, hspace=0, wspace=0)
     axs = gs.subplots(sharex='col', sharey='row')
@@ -284,13 +291,12 @@ def p3_plot(teps_for_featvals, stds_for_featvals, all_featvals):
         ax.label_outer()
 
     feat_names = ['70-74', '75-79', '80-84', '85+']
-
-    sample_size = np.sum(featval_sizes)
     color_list = ['red', 'blue', 'green', 'yellow']
 
-    for ite, colo, ax_nr, ax_name in zip(o, color_list, range(len(feat_names)), feat_names):
+    for colo, ax_nr, ax_name in zip(color_list, range(len(feat_names)), feat_names):
         to_sort = listOfTuples2(teps_for_featvals[ax_nr], stds_for_featvals[ax_nr])
         
+        # before sorting, cull the list to a maximum of 50 values 
         if(len(to_sort) < 50):
             sample_list = to_sort
         else:
@@ -299,6 +305,7 @@ def p3_plot(teps_for_featvals, stds_for_featvals, all_featvals):
         sorted_vals = sorted(sample_list, key=lambda tup: tup[0])
         sorted_ites = [x[0] for x in sorted_vals]
         sorted_std = [x[1] for x in sorted_vals]
+
         for x, y ,std in zip(range(len(sorted_ites)), sorted_ites, sorted_std):
             axs[ax_nr].errorbar(x=x, y=y, yerr=std, fmt='o', ecolor='black', elinewidth=1, capsize=5, color='black')
         axs[ax_nr].set_xlabel(ax_name)
@@ -307,27 +314,27 @@ def p3_plot(teps_for_featvals, stds_for_featvals, all_featvals):
     axs[0].set_ylabel("Individual Treatment Effect")
     plt.savefig('p3.png', dpi=1000)
     plt.clf()
+    plt.close()
 
 
+# p4_plot visualises the averages for the unique feature expressions for 2 features over treatment and control outcome predictions, as well as
+# the total averages over outcome predictions
 def p4_plot(avg_ite_pp, to_list, co_list, feat1_nr, feat2_nr, feature_results):
-    features = feature_results[:,0,0,:][0]
+    # feat_selection contains the indices for the given features in the dataset, TODO: maybe change to giving a list instead?
     feat_selection = [feat1_nr, feat2_nr]
 
-    nr_bucks = 0
+    # calculate the total number of unique feature expressions 
+    nr_categories = 0
     for f in feat_selection: 
-        feat_x = feature_results[0,0,0,:][:,f]
-        all_featvals = np.unique(feat_x)
-        nr_bucks = len(all_featvals) + nr_bucks
+        all_featvals = np.unique(feature_results[0,0,0,:][:,f])
+        nr_categories = len(all_featvals) + nr_categories
 
 
-    nr_categories = nr_bucks 
-    ind = range(len(to_list))
-    color_list = ('green','blue','blue')
+    #ind = range(len(to_list))
 
     fig = plt.figure(figsize=(11, 5)) 
     gs = fig.add_gridspec(1,nr_categories, hspace=0, wspace=0)
     axs = gs.subplots(sharex='col', sharey='row')
-
     for ax in fig.get_axes():
         ax.label_outer()
 
@@ -340,11 +347,20 @@ def p4_plot(avg_ite_pp, to_list, co_list, feat1_nr, feat2_nr, feature_results):
     
     first = True
     start_ax = 0
+    color_list = ('green','blue','blue')
+    # TODO: features_names could be defined in prior
     feature_names = ['Age', 'Tumor Grade']
+    features = feature_results[:,0,0,:][0]
+    yval_labels = ['Treatment', 'Control']
 
+    # the outer loop goes over all the features
     for feat, feat_name in zip(feat_selection, feature_names):
-        tos, cos, ind, x_tick_labels = get_feature_split(features, feature_results, to_list, co_list, feature_nr=feat)
+        # for the individual features, receive the mean values for each unique feature expression
+        tos, cos, _, x_tick_labels = get_feature_split(features, feature_results, to_list, co_list, feature_nr=feat)
+
+        # nr_featvals is used to determine where the plotting for the next feature has to end
         nr_featvals = len(tos) + start_ax
+
         # first add the dashed line, then the crosses for the prediction outcomes
         for ax_nr, feat_x in zip(range(start_ax, nr_featvals), range(len(tos))):
             # do this to not fill up legend
@@ -357,7 +373,6 @@ def p4_plot(avg_ite_pp, to_list, co_list, feat1_nr, feat2_nr, feature_results):
                 axs[ax_nr].plot(mean_points_control, linestyle = 'dashed', color='blue')
 
             yvals = [tos[feat_x], cos[feat_x]]
-            yval_labels = ['Treatment', 'Control']
             ticklabels = x_tick_labels[feat_x]
             ticklabels[1] = feat_name + ' ' + ticklabels[1]
 
@@ -369,7 +384,7 @@ def p4_plot(avg_ite_pp, to_list, co_list, feat1_nr, feat2_nr, feature_results):
                 axs[ax_nr].set_xticks(range(3))
                 axs[ax_nr].set_xticklabels(ticklabels)
             
-
+        # start_ax determines where the plotting for the next feature has to start from
         start_ax = len(tos) + start_ax
 
     handles, labels = axs[0].get_legend_handles_labels()
@@ -377,42 +392,42 @@ def p4_plot(avg_ite_pp, to_list, co_list, feat1_nr, feat2_nr, feature_results):
     ax.legend(handles, labels, loc='center left', bbox_to_anchor=(1, 0.5))
     plt.savefig('p4.png', bbox_inches='tight', dpi=1000)
     plt.clf()
+    plt.close()
 
 
+# p5_plot creates two partial dependence plots, one for treatment and one for control outcomes. 
+# Points for a patients individual values are added
 def p5_plot(to_list, co_list, feat_x, all_featvals, patient_nr):
 
     fig, ax = plt.subplots(figsize=(15, 10))
 
     patient_to = to_list[patient_nr]
     patient_co = co_list[patient_nr]
+    # patient_feat marks, which unique feature expression the patient has
+    patient_feat = feat_x[patient_nr]
 
+    # both outcome prediction lists need to ne squeezed
     squeetreatment= np.squeeze(to_list)
     squeecontrol= np.squeeze(co_list)
-
-    patient_feat = feat_x[patient_nr]
 
     idx_list = []
     avg_pred_list_t = []
     avg_pred_list_c = []
 
+    # calculate the averages over all unique feature expressions given in all_featvals
     for tup in all_featvals:
         first_val = tup
-
-        fv_indices = [i for i, e in enumerate(feat_x) if e == first_val]
-
-        patient_idx = [value for value in fv_indices]
-        idx_list = idx_list + patient_idx
+        # get the indices of patients that match the current feature expression
+        idx_list = [i for i, e in enumerate(feat_x) if e == first_val]
 
         #need to work out what to do with 0 values
         treatment_pred_avg = np.mean([squeetreatment[i] for i in idx_list]) 
         control_pred_avg = np.mean([squeecontrol[i] for i in idx_list]) 
 
+        # aggregate the means for each unique feature expression in a list for easy plotting
         avg_pred_list_t = avg_pred_list_t + [treatment_pred_avg]
         avg_pred_list_c = avg_pred_list_c + [control_pred_avg]
-        idx_list = []
 
-    avg_pred_list_t = np.reshape(avg_pred_list_t, (len(all_featvals)))
-    avg_pred_list_c = np.reshape(avg_pred_list_c, (len(all_featvals)))
 
     plt.plot(all_featvals,avg_pred_list_t, color='green', label='Treatment')
     plt.plot(all_featvals,avg_pred_list_c, color='blue', label='Control')
@@ -423,8 +438,10 @@ def p5_plot(to_list, co_list, feat_x, all_featvals, patient_nr):
     plt.ylabel('Outcome Prediction')
     plt.savefig('p5_pat'+ str(patient_nr) + '.png', bbox_inches='tight', dpi=1000)
     plt.clf()
+    plt.close()
 
 
+# p6_plot is based on forest plots/hazard ratios. It aggregates the ite values for the unique feature expressions and puts them in a zepid plot
 def p6_plot(iteff_pred_results, feature_results, feat1_nr, feat2_nr):
     feat_list = [feat1_nr, feat2_nr]
     teps_for_featvals = []
@@ -436,11 +453,11 @@ def p6_plot(iteff_pred_results, feature_results, feat1_nr, feat2_nr):
     # choose labels according to feature names
     for f, name in zip(feat_list, feat_names):
         feat_x = feature_results[0,0,0,:][:,f]
-
         all_featvals = np.unique(feat_x)
 
+        # look at all patients that share a feature expression (featval) and take the mean over their ites at different points in training
         teps_for_featvals = teps_for_featvals + [[np.mean(iteff_pred_results[0,0,8:15,patient]) for patient in np.where(feat_x == featval)[0]] for featval in all_featvals]
-        featval_sizes = [len(teps_for_featvals[x]) for x in range(len(teps_for_featvals))]
+
         if(f == 0):
             all_featvals = feat_group_names
         else:
@@ -470,15 +487,14 @@ def p6_plot(iteff_pred_results, feature_results, feat1_nr, feat2_nr):
 
     plt.savefig("p6.png", bbox_inches='tight', dpi=1000)
     plt.clf()
+    plt.close()
 
 
-def p7_plot(avg_ite_pp, to_list, co_list, feature_results, feat1_nr, feat2_nr):
-    avg_ite = np.mean(avg_ite_pp)
-    avg_treatment_outcome = np.mean(to_list)
-    avg_control_outcome = np.mean(co_list)
+# p7_plot 
+def p7_plot(to_list, co_list, feature_results, feat1_nr, feat2_nr):
+
+
     nr_categories = 4 
-    ind = range(len(to_list))
-    color_list = ('green','blue','blue')
 
     fig = plt.figure()
     gs = fig.add_gridspec(1,nr_categories, hspace=0, wspace=0)
@@ -487,65 +503,64 @@ def p7_plot(avg_ite_pp, to_list, co_list, feature_results, feat1_nr, feat2_nr):
     for ax in fig.get_axes():
         ax.label_outer()
     features = feature_results[:,0,0,:][0]
-
-    mean_points_ite = np.array([avg_ite, avg_ite, avg_ite])
+    
+    # create these arrays of 3 values to fit into the 3 xticks used in every subplots
+    avg_treatment_outcome = np.mean(to_list)
+    avg_control_outcome = np.mean(co_list)
     mean_points_treatment= np.array([avg_treatment_outcome, avg_treatment_outcome, avg_treatment_outcome])
     mean_points_control= np.array([avg_control_outcome, avg_control_outcome, avg_control_outcome])
 
+    # define parameters that are used for plotting
     feat_selection = [feat1_nr]
     labs = ['Treatment', 'Control']
+    ind = range(len(to_list))
+    color_list = ('green','blue','blue')
 
     for feat in feat_selection:
-        tos, cos, ind, x_tick_labels = get_feature_split(features, feature_results, to_list, co_list, feature_nr=feat)
-        treatment_ind = np.array([ind[0], ind[0], ind[0]])
-        control_ind = np.array([ind[1], ind[1], ind[1]])
+        # for the individual features, receive the mean values for each unique feature expression
+        tos, cos, _, x_tick_labels = get_feature_split(features, feature_results, to_list, co_list, feature_nr=feat)
+
         nr_featvals = len(tos)
         for ax_nr in range(nr_featvals):
             yvals = [tos[ax_nr], cos[ax_nr]]
             ticklabels = x_tick_labels[ax_nr]
             axs[ax_nr].plot(mean_points_treatment, linestyle = 'dashed', color='green', label= 'Average Treatment')
             axs[ax_nr].plot(mean_points_control, linestyle = 'dashed', color='blue', label= 'Average Control')
+            axs[ax_nr].set_xticks(range(3))
+            axs[ax_nr].set_xticklabels(ticklabels)
             for x, y, colors, l in zip(range(nr_featvals), yvals, color_list, labs):
                 axs[ax_nr].errorbar(x=x, y=y, fmt='x', ecolor='black', elinewidth=1, capsize=5, color = colors, label=l)
-                axs[ax_nr].set_xticks(range(3))
-                axs[ax_nr].set_xticklabels(ticklabels)
-
+                
 
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     axs[0].set_ylabel('Outcome Prediction')
     fig.supxlabel('Age Group')
     plt.savefig('p7.png', bbox_inches='tight', dpi=1000)
     plt.clf()
+    plt.close()
 
 
+# p8_plot is a simple one-way pdp over a single feature and ites
 def p8_plot(avg_ite, feature_results, to_list, co_list, feature_nr):
 
     fig, ax = plt.subplots(figsize=(10, 5))
 
     feat_x = feature_results[0,0,0,:][:,feature_nr]
     all_featvals = np.unique(feat_x)
-
     first_feat = feat_x
     squeeite= np.squeeze(avg_ite)
 
+    # TODO: does initialising make sense here?
     idx_list = []
     avg_pred_list = []
 
     for tup in all_featvals:
         first_val = tup
-
-        fv_indices = [i for i, e in enumerate(first_feat) if e == first_val]
-
-        patient_idx = [value for value in fv_indices]
-        idx_list = idx_list + patient_idx
+        idx_list = [i for i, e in enumerate(first_feat) if e == first_val]
 
         #need to work out what to do with 0 values
         ite_pred_avg = np.mean([squeeite[i] for i in idx_list]) 
-        
         avg_pred_list = avg_pred_list + [ite_pred_avg]
-        idx_list = []
-
-    avg_pred_list = np.reshape(avg_pred_list, (len(all_featvals)))
 
     plt.plot(all_featvals,avg_pred_list, color='black', label='ITE')
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
@@ -576,6 +591,7 @@ def p9_plot(avg_ite, std_ite, patient_nr):
     plt.xlabel('Individual Patients')
     plt.savefig('p9_pat' + str(patient_nr)+ '.png', dpi=1000)
     plt.clf()
+    plt.close()
 
 
 def p10_plot(avg_ite, to_list, co_list):
@@ -609,6 +625,7 @@ def p10_plot(avg_ite, to_list, co_list):
     plt.ylabel("Outcome Prediction")
     plt.savefig('p10.png' , bbox_inches='tight', dpi=1000)
     plt.clf()
+    plt.close()
 
 
 # p11_plot is special as the feature groups are not taken in separation from each other but 
@@ -692,6 +709,7 @@ def p11_plot(all_feat1vals, all_feat2vals, feat_1, feat_2, to_list, co_list, pat
     fig.supxlabel('Tumor Grade')
     plt.savefig('p11_pat' + str(patient_nr)+'.png', dpi=1000, bbox_inches= 'tight')
     plt.clf()
+    plt.close()
 
 
 def p12_plot(avg_ite):
@@ -706,6 +724,7 @@ def p12_plot(avg_ite):
     plt.ylabel('Individual Treatment Effect')
     plt.savefig('p12.png', dpi=1000)
     plt.clf()
+    plt.close()
 
 
 def p13_plot(avg_ite, to_list, co_list,feat_results, iteff_pred_results, feat1_nr, feat2_nr, patient_nr):
@@ -751,6 +770,7 @@ def p13_plot(avg_ite, to_list, co_list,feat_results, iteff_pred_results, feat1_n
     plt.ylabel('Tumor Grade')
     plt.savefig('p13_pat' + str(patient_nr) + '.png', bbox_inches='tight', dpi=1000)
     plt.clf()
+    plt.close()
 
 
 def p14_plot(avg_ite, std_ite, to_list, co_list, feature_results, feat1_nr, feat2_nr):
@@ -822,6 +842,7 @@ def p14_plot(avg_ite, std_ite, to_list, co_list, feature_results, feat1_nr, feat
     fig.supxlabel('Tumor Grade')
     plt.savefig('p14.png', dpi=1000)
     plt.clf()
+    plt.close()
 
 
 def p15_plot(avg_ite, teps_for_featval, featval_labs, patient_nr):
@@ -852,6 +873,7 @@ def p15_plot(avg_ite, teps_for_featval, featval_labs, patient_nr):
 
     plt.savefig("p15_pat" + str(patient_nr) + ".png", bbox_inches='tight', dpi=1000)
     plt.clf()
+    plt.close()
 
 
 def p16_plot(avg_ite, std_ite):
@@ -874,6 +896,7 @@ def p16_plot(avg_ite, std_ite):
     plt.ylabel('Number of Patients')
     plt.savefig('p16.png', dpi=1000)
     plt.clf()
+    plt.close()
 
 
 def p17_plot(to_list, co_list, feature_results, feat1_nr, feat2_nr):
@@ -924,6 +947,7 @@ def p17_plot(to_list, co_list, feature_results, feat1_nr, feat2_nr):
 
     plt.savefig('p17.png', bbox_inches='tight', dpi=1000)
     plt.clf()
+    plt.close()
 
 
 def p18_plot(avg_ite, t_outcomes, c_outcomes, patient_nr):
@@ -955,4 +979,5 @@ def p18_plot(avg_ite, t_outcomes, c_outcomes, patient_nr):
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.savefig('p18_pat' + str(patient_nr) +'.png', bbox_inches='tight', dpi=1000)
     plt.clf()
+    plt.close()
 
