@@ -175,6 +175,7 @@ def plot_all_profiles(results, patient_nrs=[0], feature1=0, feature2=1):
         p5_plot(treatment_outcome_list, control_outcome_list, feat1_vals, uniq_feat1_vals, pat_nr)
         p9_plot(avg_ite_per_person[0], std_ite_per_person[0], pat_nr)
         p11_plot(uniq_feat1_vals, uniq_feat2_vals, feat1_vals, feat2_vals, treatment_outcome_list, control_outcome_list, pat_nr, nr_patients)
+        # for p13_plot read its description and readme!
         #p13_plot(avg_ite_per_person[0], treatment_outcome_list, control_outcome_list,results['test']['features'], results['test']['iteff_pred'], feature1, feature2, pat_nr)
         p15_plot(avg_ite_per_person[0], teps_for_feat1vals, feat1val_labs, pat_nr)
         p18_plot(avg_ite_per_person[0], treatment_outcome_list, control_outcome_list, pat_nr)
@@ -570,9 +571,14 @@ def p8_plot(avg_ite, feature_results, to_list, co_list, feature_nr):
     plt.clf()
 
 
+# p9_plot shows ites for a sample of the population, depicted as points with whiskers for standard deviation
 def p9_plot(avg_ite, std_ite, patient_nr):
+
+    # have the patient to be marked in red
     color_list = ['black' if x!=patient_nr else 'red' for x in range(len(avg_ite))]
     ite_with_stds = listOfTuples3(avg_ite,std_ite, color_list)
+
+    # sample a number of patients to not overcrowd the plot, then add the patient to be shown
     patient_tup = ite_with_stds[patient_nr]
     sample_list = random.sample(ite_with_stds, 75)
     complete_sample_list = sample_list.append(patient_tup)
@@ -594,29 +600,31 @@ def p9_plot(avg_ite, std_ite, patient_nr):
     plt.close()
 
 
+# 
 def p10_plot(avg_ite, to_list, co_list):
-    color_list = ['red' for x in range(len(to_list))]
+    fig, ax = plt.subplots(figsize=(10, 5))
 
-    ite_with_stds = listOfTuples4(avg_ite,to_list, co_list, color_list)
+    # create tuples of ites, cos and tos for sorting and sampling
+    ite_with_stds = listOfTuples3(avg_ite,to_list, co_list)
+
     sample_list = random.sample(ite_with_stds, 75)
 
     sorted_ite_with_stds = sorted(sample_list, key=lambda tup: tup[0])
     sorted_ites = [x[0] for x in sorted_ite_with_stds]
     sorted_treatments = [x[1] for x in sorted_ite_with_stds]
     sorted_controls= [x[2] for x in sorted_ite_with_stds]
-    sorted_colors = [x[3] for x in sorted_ite_with_stds]
 
-    sorted_treatment_effect_list = [sorted_treatments[x]-sorted_controls[x] for x in range(len(sorted_treatments))]
-    ind = range(len(sorted_treatments))
+
+    #sorted_treatment_effect_list = [sorted_treatments[x]-sorted_controls[x] for x in range(len(sorted_treatments))]
     
-    fig, ax = plt.subplots(figsize=(10, 5))
-    negative_ite = [x for x in sorted_treatment_effect_list if x<0]
+    # first plot the negative ites without control values
+    negative_ite = [x for x in sorted_ites if x<0]
     negative_inds = range(len(negative_ite))
-
     ax.bar(negative_inds, negative_ite, color='r')
 
-    positive_ite = [x if x>0 else 0 for x in sorted_treatment_effect_list]
-
+    # then plot all the control values and only the positive ites
+    positive_ite = [x if x>0 else 0 for x in sorted_ites]
+    ind = range(len(sorted_treatments))
     ax.bar(ind,sorted_controls, color='b', label='Control Outcomes')
     ax.bar(ind,positive_ite, bottom=sorted_controls, color='r', label='Treatment Effect')
 
@@ -628,7 +636,7 @@ def p10_plot(avg_ite, to_list, co_list):
     plt.close()
 
 
-# p11_plot is special as the feature groups are not taken in separation from each other but 
+# p11_plot is special as the feature groups are not taken in separation from each other but groups defined by two feature expression are constructed
 def p11_plot(all_feat1vals, all_feat2vals, feat_1, feat_2, to_list, co_list, patient_nr, nr_patients):
 
     nr1_buckets = len(all_feat1vals)
@@ -643,9 +651,10 @@ def p11_plot(all_feat1vals, all_feat2vals, feat_1, feat_2, to_list, co_list, pat
     treatment_outcomes_for_feat_combs = [[[to_list[indices] for indices in layer2] for layer2 in layer1] for layer1 in indices_for_feat_combs]
     control_outcomes_for_feat_combs = [[[co_list[indices] for indices in layer2] for layer2 in layer1] for layer1 in indices_for_feat_combs]
 
+    # first create a color list as usual, then split the list for the different feature combinations.
     color_list = ['red' if x!=patient_nr else 'black' for x in range(nr_patients)]
     color_list_control = ['blue' if x!=patient_nr else 'yellow' for x in range(nr_patients)]
-    colors = [[[color_list[indices] for indices in layer2] for layer2 in layer1] for layer1 in indices_for_feat_combs]
+    colors_ite = [[[color_list[indices] for indices in layer2] for layer2 in layer1] for layer1 in indices_for_feat_combs]
     colors_control = [[[color_list_control[indices] for indices in layer2] for layer2 in layer1] for layer1 in indices_for_feat_combs]
 
     fig = plt.figure(figsize = (10, 8))
@@ -661,39 +670,44 @@ def p11_plot(all_feat1vals, all_feat2vals, feat_1, feat_2, to_list, co_list, pat
     y_ticks_lists.reverse()
     x_ticks_lists = [str(featval) for featval in all_feat2vals]
 
-    x_ticks_list_t = ['','Treatment','']
-    x_ticks_list_c = ['','Control','']
     first=True
 
     patient_tup = (to_list[patient_nr],co_list[patient_nr],'black','yellow')
 
+    # 
     for ax1_nr in range(nr1_buckets):
         axs[3,ax1_nr].set_xlabel(x_ticks_lists[ax1_nr])
 
         for ax2_nr in range(nr2_buckets):
 
             axs[ax2_nr,0].set_ylabel(y_ticks_lists[ax2_nr])     
-            ite_with_stds = listOfTuples4(treatment_outcomes_for_feat_combs[ax1_nr][ax2_nr], control_outcomes_for_feat_combs[ax1_nr][ax2_nr], colors[ax1_nr][ax2_nr], colors_control[ax1_nr][ax2_nr])
+            # create a tuple list which can be sampled and then sorted for any combination of unique feature expressions
+            ite_with_stds = listOfTuples4(treatment_outcomes_for_feat_combs[ax1_nr][ax2_nr], control_outcomes_for_feat_combs[ax1_nr][ax2_nr], \
+             colors_ite[ax1_nr][ax2_nr], colors_control[ax1_nr][ax2_nr])
 
             if(len(ite_with_stds) < 50):
                 sample_list = ite_with_stds
             else:
                 sample_list = random.sample(ite_with_stds, 50)
 
+            # test if the patient to be marked is already included in the sample_list, otherwise add it
             if(all_feat1vals[ax1_nr] == feat_1[patient_nr] and all_feat2vals[ax2_nr] == feat_2[patient_nr] and (patient_tup not in sample_list)):
                 sample_list.append(patient_tup)
 
             sorted_ite_with_stds = sorted(sample_list, key=lambda tup: tup[0]-tup[1])
             sorted_treatments = [x[0] for x in sorted_ite_with_stds]
             sorted_controls= [x[1] for x in sorted_ite_with_stds]
-            sorted_colors = [x[2] for x in sorted_ite_with_stds]
+            sorted_colors_ite = [x[2] for x in sorted_ite_with_stds]
             sorted_color_control = [x[3] for x in sorted_ite_with_stds]
 
             sorted_treatment_effect_list = [sorted_treatments[x]-sorted_controls[x] for x in range(len(sorted_treatments))]
             ind = range(len(sorted_treatments))
 
-            for x, sc, ite, colo, ccolor in zip(ind, sorted_controls, sorted_treatment_effect_list, sorted_colors, sorted_color_control):
+
+            for x, sc, ite, colo, ccolor in zip(ind, sorted_controls, sorted_treatment_effect_list, sorted_colors_ite, sorted_color_control):
+
                 if(ite > 0):
+                    # do this so the legend does not spill over
                     if(first==True):
                         axs[ax1_nr,ax2_nr].bar(x,sc,color=ccolor, label='Control Outcome')
                         axs[ax1_nr,ax2_nr].bar(x,ite, bottom=sc, color=colo, label = 'Treatment Effect')
@@ -712,6 +726,7 @@ def p11_plot(all_feat1vals, all_feat2vals, feat_1, feat_2, to_list, co_list, pat
     plt.close()
 
 
+# p12_plot is just a simple boxplot of ites
 def p12_plot(avg_ite):
     fig = plt.figure()
 
@@ -727,29 +742,22 @@ def p12_plot(avg_ite):
     plt.close()
 
 
+# p13_plot creates a two way partial dependence plot. Pay attention to replace the code from sklearn as specified in the README!
 def p13_plot(avg_ite, to_list, co_list,feat_results, iteff_pred_results, feat1_nr, feat2_nr, patient_nr):
-    ite_with_stds = listOfTuples3(avg_ite,to_list, co_list)
-    sorted_ite_with_stds = sorted(ite_with_stds, key=lambda tup: tup[0])
-    sorted_ites = [x[0] for x in sorted_ite_with_stds]
-    sorted_treatments = [x[1] for x in sorted_ite_with_stds]
-    sorted_controls= [x[2] for x in sorted_ite_with_stds]
 
     fig, ax = plt.subplots()
 
+    # these serve to prepare the dummy estimator
     big_X = np.squeeze(np.mean(feat_results[:,0,:,:], axis=(1)))
     true_Y = np.squeeze(np.mean(iteff_pred_results[:,0,:,:], axis=(1)))
 
-    feat_1 = feat_results[0,0,0,:][:,feat1_nr]
-    feat_2 = feat_results[0,0,0,:][:,feat2_nr]
-
-    patient_f1val = feat_1[patient_nr]
-    patient_f2val = feat_2[patient_nr]
     # needs to be squeezed, otherwise this is interpreted as multi-output regressor
     squeeite= np.squeeze(avg_ite)
 
     dum = DummyRegressor(wanted_output=squeeite)
     dum.fit(big_X,true_Y)
 
+    # tep_results are not native to from_estimator. Due to the uncommon structure of the cfrnet i have to pass the results and work with them
     pdp_plot = PartialDependenceDisplay.from_estimator(
         estimator=dum,
         X=big_X,
@@ -759,7 +767,13 @@ def p13_plot(avg_ite, to_list, co_list,feat_results, iteff_pred_results, feat1_n
         ax=ax,
     )
 
+    # now plot two lines marking the individual patients feature expression onto the two way pdp
+    feat_1 = feat_results[0,0,0,:][:,feat1_nr]
+    feat_2 = feat_results[0,0,0,:][:,feat2_nr]
 
+    patient_f1val = feat_1[patient_nr]
+    patient_f2val = feat_2[patient_nr]
+    # add a little offset so that the line does not disappear at the left side of the plot
     if(patient_f1val == 70):
         patient_f1val = patient_f1val+2
     plt.axvline(patient_f1val, label='Patient Features', color='black')
@@ -773,34 +787,32 @@ def p13_plot(avg_ite, to_list, co_list,feat_results, iteff_pred_results, feat1_n
     plt.close()
 
 
+# p14_plot like p11 creates subgroups of patients that share 2 feature expression of 2 features
 def p14_plot(avg_ite, std_ite, to_list, co_list, feature_results, feat1_nr, feat2_nr):
 
-    avg_ite_per_person = list(list(avg_ite)[0])
-    std_ite_per_person = list(list(std_ite)[0])
-
     prc_to_sample = 0.06
-    
-    # 1. calculate how many patients have each feature expression
+
     feat_1 = feature_results[0,0,0,:][:,feat1_nr]
     feat_2 = feature_results[0,0,0,:][:,feat2_nr]
     all_feat1vals = np.unique(feat_1)
     all_feat2vals = np.unique(feat_2)
-    nr1_buckets = len(all_feat1vals)
-    nr2_buckets = len(all_feat2vals)
 
     # get indeces for the subgroups, to match and later extract the outcome predictions
-    teps_for_feat1vals = [np.where(feat_1 == featval)[0] for featval in all_feat1vals]
-    teps_for_feat2vals = [np.where(feat_2 == featval)[0] for featval in all_feat2vals]
+    tep_indices_for_feat1vals = [np.where(feat_1 == featval)[0] for featval in all_feat1vals]
+    tep_indices_for_feat2vals = [np.where(feat_2 == featval)[0] for featval in all_feat2vals]
 
-    indices_for_feat_combs = [[np.intersect1d(ind1,ind2) for ind2 in teps_for_feat2vals] for ind1 in teps_for_feat1vals]
+    indices_for_feat_combs = [[np.intersect1d(ind1,ind2) for ind2 in tep_indices_for_feat2vals] for ind1 in tep_indices_for_feat1vals]
 
-    # get individual treatment and control outcomes for all feature combinations each is #different fea1vals x #different feat2val 
-    treatment_outcomes_for_feat_combs = [[[to_list[indices] for indices in layer2] for layer2 in layer1] for layer1 in indices_for_feat_combs]
-    control_outcomes_for_feat_combs = [[[co_list[indices] for indices in layer2] for layer2 in layer1] for layer1 in indices_for_feat_combs]
-    colors = [[['red' for x in layer2] for layer2 in layer1] for layer1 in indices_for_feat_combs]
+    avg_ite_per_person = list(list(avg_ite)[0])
+    std_ite_per_person = list(list(std_ite)[0])
 
+    # aggregate ites and standard deviations according to the characteristics of the respective patients
     ite_preds_for_feat_combs = [[[avg_ite_per_person[indices] for indices in layer2] for layer2 in layer1] for layer1 in indices_for_feat_combs]
     std_preds_for_feat_combs = [[[std_ite_per_person[indices] for indices in layer2] for layer2 in layer1] for layer1 in indices_for_feat_combs]
+
+    # TODO: is this necessary? or could i use the above shape?
+    nr1_buckets = len(all_feat1vals)
+    nr2_buckets = len(all_feat2vals)
 
     fig = plt.figure(figsize=(15,10))
     gs = fig.add_gridspec(nr1_buckets,nr2_buckets, hspace=0, wspace=0)
@@ -813,9 +825,6 @@ def p14_plot(avg_ite, std_ite, to_list, co_list, feature_results, feat1_nr, feat
     y_ticks_lists = [str(featval) for featval in feat_names]
     y_ticks_lists.reverse()
     x_ticks_lists = [str(featval) for featval in all_feat2vals]
-
-    x_ticks_list_t = ['','Treatment','']
-    x_ticks_list_c = ['','Control','']
 
     for ax1_nr in range(nr1_buckets):
         axs[3,ax1_nr].set_xlabel(x_ticks_lists[ax1_nr])
@@ -845,12 +854,14 @@ def p14_plot(avg_ite, std_ite, to_list, co_list, feature_results, feat1_nr, feat
     plt.close()
 
 
+# p15_plot creates a hazard ratio/forest plot that shows ites aggregated over groups defined by shared feature expressions
 def p15_plot(avg_ite, teps_for_featval, featval_labs, patient_nr):
+    # sort the ite values that are grouped by shared feature expression TODO: maybe doing the sorting once for all profiles could be useful!
     ordered_featvals = [np.sort([teps_for_featval[x]]) for x in range(len(teps_for_featval))]
+    # this is done to correct the shape/ remove an array dimension or something
     o = [x for xs in ordered_featvals for x in xs]
 
     feat_names = ['Age 70-74', 'Age 75-79', 'Age 80-84', 'Age 85+']
-
 
     patient_ite = avg_ite[patient_nr]
     measure = [round(np.mean(vals),1) for vals in o]
@@ -876,22 +887,22 @@ def p15_plot(avg_ite, teps_for_featval, featval_labs, patient_nr):
     plt.close()
 
 
+# p16_plot creates a simple histogram that aggregates ite values
 def p16_plot(avg_ite, std_ite):
     ite_with_stds = listOfTuples2(avg_ite, std_ite)
     sorted_ite_with_stds = sorted(ite_with_stds, key=lambda tup: tup[0])
     sorted_ites = [x[0] for x in sorted_ite_with_stds]
-    sorted_stds = [x[1] for x in sorted_ite_with_stds]
 
     # sort ites in buckets of width 1
     fig = plt.figure()
-    max_ite = int(sorted_ites[len(sorted_ites)-1]) + 2  # +1 somehow does not create the last bucket at the top
-    min_ite = int(sorted_ites[0]) - 1
+    max_ite = int(max(avg_ite)) + 2  # +1 somehow does not create the last bucket at the top
+    min_ite = int(min(avg_ite)) -1
+    
     bins = np.array(range(min_ite,max_ite))
+    ites_in_bins = pd.cut(avg_ite,bins)
+    ite_hist = np.histogram(avg_ite,bins)
 
-    ites_in_bins = pd.cut(sorted_ites,bins)
-    ite_hist = np.histogram(sorted_ites,bins)
-
-    plt.hist(sorted_ites,list(ite_hist[1]), color= 'black')
+    plt.hist(avg_ite,list(ite_hist[1]), color= 'black')
     plt.xlabel('Individual Treatment Effect')
     plt.ylabel('Number of Patients')
     plt.savefig('p16.png', dpi=1000)
@@ -899,6 +910,7 @@ def p16_plot(avg_ite, std_ite):
     plt.close()
 
 
+# p17_plot creates pdps for the different features over all feature expressions
 def p17_plot(to_list, co_list, feature_results, feat1_nr, feat2_nr):
     fig, ax = plt.subplots(figsize=(15, 10))
 
@@ -909,10 +921,9 @@ def p17_plot(to_list, co_list, feature_results, feat1_nr, feat2_nr):
     colors = [['green', 'blue'], ['yellow', 'red']]
 
     for feat_nr, feat_name, col in zip(feat_list,names_list, colors):
-        feat_x = feature_results[0,0,0,:][:,feat_nr]
-        all_featvals = np.unique(feat_x)
+        first_feat = feature_results[0,0,0,:][:,feat_nr]
+        all_featvals = np.unique(first_feat)
 
-        first_feat = feat_x
         # fv_indices are the index values for any given feature value
         idx_list = []
         avg_pred_list_t = []
@@ -950,26 +961,21 @@ def p17_plot(to_list, co_list, feature_results, feat1_nr, feat2_nr):
     plt.close()
 
 
+# p18_plot creates a joint histogramm of tos and pos. It also adds marks for the outcome predictions of a single patient
 def p18_plot(avg_ite, t_outcomes, c_outcomes, patient_nr):
     chosen_patient_treatment_outcome = t_outcomes[patient_nr]
     chosen_patient_control_outcome = c_outcomes[patient_nr]
 
-    value_tuple = listOfTuples3(avg_ite, t_outcomes, c_outcomes)
-    sorted_value_tuple = sorted(value_tuple, key=lambda tup: tup[0])
-    sorted_ites = [x[0] for x in sorted_value_tuple]
-    sorted_treatments = [x[1] for x in sorted_value_tuple]
-    sorted_controls= [x[2] for x in sorted_value_tuple]
-
-    min_treatment = int(sorted_treatments[len(sorted_treatments)-1]) + 2  # +1 somehow does not create the last bucket at the top
-    max_treatment = int(sorted_treatments[0]) - 1
-    min_control = int(sorted_controls[len(sorted_controls)-1]) + 2  # +1 somehow does not create the last bucket at the top
-    max_control = int(sorted_controls[0]) - 1
+    min_treatment = int(min(t_outcomes))   
+    max_treatment = int(max(t_outcomes)) 
+    min_control = int(min(c_outcomes))   
+    max_control = int(max(c_outcomes)) 
 
     # need bins for min control and max treatment supposedly
     bin_nr = max_treatment - min_control
 
-    a = np.array(list(zip(t_outcomes, c_outcomes)))
-    plt.hist(a,bin_nr, label=['Treatment', 'Control'], color=['green', 'blue']) # density=True, histtype='bar',
+    hist_values = np.array(list(zip(t_outcomes, c_outcomes)))
+    plt.hist(hist_values,bin_nr, label=['Treatment', 'Control'], color=['green', 'blue']) # density=True, histtype='bar',
 
     plt.axvline(chosen_patient_treatment_outcome, label="Patient predicted Treatment Outcome", color='orange')
     plt.axvline(chosen_patient_control_outcome, label="Patient predicted Control Outcome", color='yellow')
