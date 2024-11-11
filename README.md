@@ -100,7 +100,8 @@ For this repository two environments are needed. To use the cfr_net to make pred
 In the original repository IHDP was used for demonstration. For my thesis I constructed a new data set from the SEER Database.
 
 Use data_refinement to modify the unrefined_study_data. You will receive masterstudytest.npz and masterstudytrain.npz to continue with training
-These two npz files have to be moved to the data folder
+These two npz files have to be moved to the data folder. Apart from masterstudytest and masterstudytrain the data will not be provided in this repository 
+but has to be retrieved from SEER. 
 
 ## Training CFRNet and modifications
 cfr_param_search does the search specified like above and then calls cfr_net_train
